@@ -1,24 +1,4 @@
 # pixi
 
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+vue + pixijs 制作的一个小游戏 demo
+跟谷歌浏览器里边的 T-rex 差不多
