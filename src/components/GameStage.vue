@@ -104,18 +104,22 @@ export default {
         this.cloud3,
         this.actor
       );
-      window.addEventListener('keydown', () => {
-        if (window.event.charCode === 0 && !this.start) {
-          this.start = true;
-          this.stage.removeChild(this.actor);
-          this.stage.addChild(this.actorRunning);
-          this.runGame();
-        } else {
-          if (!this.jumping) {
-            this.jump();
-          }
+      window.addEventListener('keydown', this.keydown);
+    },
+    keydown () {
+      if (!this.alive) {
+        return this.resetGame()
+      }
+      if (window.event.charCode === 0 && !this.start) {
+        this.start = true;
+        this.stage.removeChild(this.actor);
+        this.stage.addChild(this.actorRunning);
+        this.runGame();
+      } else {
+        if (!this.jumping) {
+          this.jump();
         }
-      });
+      }
     },
     jump() {
       // 变更动画
@@ -128,12 +132,18 @@ export default {
       this.actorRunning.ay = this.actroAy;
     },
     cloudRun(cloud) {
+      if (cloud === null || cloud === undefined) {
+        return
+      }
       cloud.x -= cloud.vx;
       if (cloud.x < 0 - cloud.width) {
         cloud.x = this.width;
       }
     },
     bgRun(bg) {
+      if (bg === null || bg === undefined) {
+        return
+      }
       bg.tilePosition.x -= bg.vx;
     },
     jumpPosition() {
@@ -151,9 +161,26 @@ export default {
         this.jumping = false;
       }
     },
+    hit (monstPosObj) {
+      let ifhit = (monstPosObj.leftTop.x >= this.actorRunning.x && monstPosObj.leftTop.x <= this.actorRunning.x + this.actorRunning.width && monstPosObj.leftTop.y >= this.actorRunning.y + this.actorRunning.height && monstPosObj.leftTop.y <= this.actorRunning.y) || 
+      (monstPosObj.leftBottom.x >= this.actorRunning.x && monstPosObj.leftBottom.x <= this.actorRunning.x + this.actorRunning.width && monstPosObj.leftBottom.y >= this.actorRunning.y + this.actorRunning.height && monstPosObj.leftBottom.y <= this.actorRunning.y) || 
+      (monstPosObj.rightBottom.x >= this.actorRunning.x && monstPosObj.rightBottom.x <= this.actorRunning.x + this.actorRunning.width && monstPosObj.rightBottom.y >= this.actorRunning.y + this.actorRunning.height && monstPosObj.rightBottom.y <= this.actorRunning.y) || 
+      (monstPosObj.rightTop.x >= this.actorRunning.x && monstPosObj.rightTop.x <= this.actorRunning.x + this.actorRunning.width && monstPosObj.rightTop.y >= this.actorRunning.y + this.actorRunning.height && monstPosObj.rightTop.y <= this.actorRunning.y)
+      return ifhit
+    },
+    checkDectesion () {
+      let keys = Object.keys(this.monsters)
+      keys.map((index) => {
+        let monster = this.monsters[index]
+        if (monster && game.hitTestRectangle(monster,this.actorRunning)) {
+          this.alive = false
+        }
+      })
+    },
     createMonster() {
-      if (this.start) {
-        setTimeout(() => {
+      if (this.start) {  
+        let time = game.getRandomNum(3, 4) * 1000
+        this.monsterTimer = setTimeout(() => {
           let monster = new game.AnimatedSprite(
             this.loader.resources['./imgs/rino.json'].spritesheet.animations['Run (52x34)']
           );
@@ -167,7 +194,7 @@ export default {
           this.monsterNum += 1;
 
           this.createMonster();
-        }, 5000);
+        }, time);
       }
     },
     action() {
@@ -183,6 +210,7 @@ export default {
         this.createMonster();
         this.monsterCreating = true;
       }
+      this.checkDectesion()
     },
     monsterRunning() {
       for (let key in this.monsters) {
@@ -190,7 +218,6 @@ export default {
         item.x += item.vx;
         if (item.x <= 0 - item.width) {
           delete this.monsters[key];
-          console.log(this.monsters);
         }
       }
     },
@@ -199,6 +226,32 @@ export default {
       if (this.alive) {
         requestAnimationFrame(this.runGame);
       }
+    },
+    removeMonsters () {
+      for (let key in this.monsters) {
+        this.stage.removeChild(this.monsters[key])
+        delete this.monsters[key];
+      }
+      this.monsterNum = 0
+      this.monsterCreating = false
+      clearTimeout(this.monsterTimer)
+    },
+    resetGame () {
+      this.stage.removeChild(this.actorRunning);
+      this.stage.addChild(this.actor);
+      this.removeMonsters()
+      this.land = null
+      this.sky = null
+      this.cloud1 = null
+      this.cloud2 = null
+      this.cloud3 = null
+      this.tree1 = null
+      this.tree2 = null
+      this.tree3 = null
+      this.alive = true
+      this.start = false
+      window.removeEventListener('keydown', this.keydown)
+      this.startGame()
     }
   },
   created() {
