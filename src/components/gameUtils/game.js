@@ -10,7 +10,9 @@ let Container = PIXI.Container,
     Sprite = PIXI.Sprite,
     Application = PIXI.Application,
     AnimatedSprite = PIXI.AnimatedSprite,
-    Rectangle = PIXI.Rectangle
+    Rectangle = PIXI.Rectangle,
+    Text = PIXI.Text,
+    TextStyle = PIXI.TextStyle
 
 let getRandomNum = (min, max) => {
   let num = Math.random() * (max - min) + min
@@ -78,5 +80,7 @@ export default {
   AnimatedSprite,
   getRandomNum,
   Rectangle,
-  hitTestRectangle
+  hitTestRectangle,
+  Text,
+  TextStyle
 }
